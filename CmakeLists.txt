@@ -1,19 +1,30 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 project(bouncing-dvd-logo)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories(${CMAKE_SOURCE_DIR}/include)
+# Baixar GLFW automaticamente
+include(FetchContent)
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.4
+)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-add_subdirectory(include/GLFW)
+
+FetchContent_MakeAvailable(glfw)
+
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/glad.c
+    src/shader.cpp
+    src/errorReporting.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -39,3 +50,19 @@ endif()
 if(APPLE)
     target_link_libraries(${PROJECT_NAME} "-framework OpenGL" "-framework Cocoa" "-framework IOKit" "-framework CoreVideo")
 endif()
+
+# Copiar recursos para o diretório de build
+# ------------------------------------------
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/shaders
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders
+    COMMENT "Copiando shaders para o diretório de build..."
+)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/textures
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/textures
+    COMMENT "Copiando texturas para o diretório de build..."
+)
