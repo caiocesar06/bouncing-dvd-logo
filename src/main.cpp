@@ -9,7 +9,7 @@
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window, float* xVelocity, float* yVelocity);
 
 // Settings
 const unsigned int SCR_WIDTH = 800;
@@ -17,6 +17,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 int main()
 {
+    std::srand(time(NULL));
     // GLFW: Initialize and configure
     // ------------------------------
     if (!glfwInit()) {
@@ -142,13 +143,15 @@ int main()
     float xVelocity = 0.005f, yVelocity = 0.005f;
     float halfWidth = 0.239f, halfHeight = 0.14f;
 
+    float colorR = 1.0f, colorG = 1.0f, colorB = 1.0f;
+
     // Render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
         // Input
         // -----
-        processInput(window);
+        processInput(window, &xVelocity, &yVelocity);
         
         // Render
         // ------
@@ -163,17 +166,32 @@ int main()
         // Render the triangle
         // ----------------
         ourShader.use();
+
+        bool hit = false;
         
         xOffset += xVelocity;
         yOffset += yVelocity;
 
-        if (xOffset + halfWidth > 1.0f || xOffset - halfWidth < -1.0f)
+        if (xOffset + halfWidth > 1.0f || xOffset - halfWidth < -1.0f) {
             xVelocity = -xVelocity;
-        if (yOffset + halfHeight > 1.0f || yOffset - halfHeight < -1.0f)
+            hit = true;
+        }
+        if (yOffset + halfHeight > 1.0f || yOffset - halfHeight < -1.0f) {
             yVelocity = -yVelocity;
+            hit = true;
+        }
+
+        if (hit) {
+            colorR = static_cast<float>(std::rand()) / RAND_MAX;
+            colorG = static_cast<float>(std::rand()) / RAND_MAX;
+            colorB = static_cast<float>(std::rand()) / RAND_MAX;
+        }
 
         ourShader.setFloat("xOffset", xOffset);
         ourShader.setFloat("yOffset", yOffset);
+        ourShader.setFloat("colorR", colorR);
+        ourShader.setFloat("colorG", colorG);
+        ourShader.setFloat("colorB", colorB);
         
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -199,10 +217,22 @@ int main()
 
 // Query GLFW whether relevant keys are presed/released this frame and react accordingly
 // --------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, float* xVelocity, float* yVelocity)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        *xVelocity += *xVelocity * 0.01f;
+        *yVelocity += *yVelocity * 0.01f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        *xVelocity -= *xVelocity * 0.01f;
+        *yVelocity -= *yVelocity * 0.01f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        *xVelocity = 0.005f;
+        *yVelocity = 0.005f;
+    }
 }
 
 // GLFW: Whenever the window size changed (by OS or user resize) this callback function executes
