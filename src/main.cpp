@@ -17,7 +17,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 int main()
 {
-    std::srand(time(NULL));
+    std::srand(static_cast<unsigned int>(time(nullptr)));
     // GLFW: Initialize and configure
     // ------------------------------
     if (!glfwInit()) {
@@ -66,7 +66,7 @@ int main()
          0.239f,  0.14f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // top right
          0.239f, -0.14f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // bottom right
         -0.239f, -0.14f, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
-        -0.239f,  0.14f, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // top left 
+        -0.239f,  0.14f, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // top left
     };
 
     unsigned int indices[] = {
@@ -111,7 +111,7 @@ int main()
     // Set the texture wrapping parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    
+
     // Set the texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -152,7 +152,7 @@ int main()
         // Input
         // -----
         processInput(window, &xVelocity, &yVelocity);
-        
+
         // Render
         // ------
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -168,7 +168,7 @@ int main()
         ourShader.use();
 
         bool hit = false;
-        
+
         xOffset += xVelocity;
         yOffset += yVelocity;
 
@@ -192,7 +192,7 @@ int main()
         ourShader.setFloat("colorR", colorR);
         ourShader.setFloat("colorG", colorG);
         ourShader.setFloat("colorB", colorB);
-        
+
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
